@@ -18,8 +18,10 @@ namespace LeagueApi
             {
                 MatchJSON = wc.DownloadString(MatchBase[0] + region + MatchBase[1] + gameId + MatchBase[2] + API_KEY);
             }
-            catch (Exception e)
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetMatch;
             }

@@ -17,8 +17,10 @@ namespace LeagueApi
             {
                 RotationJSON = wc.DownloadString(RotationBase[0] + region + RotationBase[1] + API_KEY);
             }
-            catch (Exception e)
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetRotation;
             }

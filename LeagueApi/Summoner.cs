@@ -26,8 +26,11 @@ namespace LeagueApi
             try
             {
                 LeagueJSON = wc.DownloadString(LeagueBase[0] + region + LeagueBase[1] + info.id + LeagueBase[2] + API_KEY);
-            } catch(Exception e)
+            }
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetLeague;
             }
@@ -37,8 +40,10 @@ namespace LeagueApi
             {
                 MatchesJSON = wc.DownloadString(MatchesBase[0] + region + MatchesBase[1] + info.accountId + MatchesBase[2] + API_KEY);
             }
-            catch (Exception e)
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetMatches;
             }

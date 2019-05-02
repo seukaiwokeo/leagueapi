@@ -10,7 +10,7 @@ namespace LeagueApi
     {
         private WebClient wc = new WebClient() { Encoding = Encoding.UTF8 };
         public ItemList items = new ItemList();
-        public ItemData getItemFromId(int itemID)
+        public ItemData getItemById(int itemID)
         {
             foreach (string key in items.data.Keys) {
                 if (itemID.ToString() == key)
@@ -22,21 +22,23 @@ namespace LeagueApi
             }
             return null;
         }
-        public ItemData getItemFromName(string itemName)
+        public ItemData getItemByName(string itemName)
         {
             foreach (ItemData data in items.data.Values) if (itemName == data.name) return data;
             return null;
         }
-        public Item(string language)
+        public Item(string language, string version = "current")
         {
             string ItemJSON;
         GetItems:
             try
             {
-                ItemJSON = wc.DownloadString("http://ddragon.leagueoflegends.com/cdn/9.9.1/data/" + language + "/item.json");
+                ItemJSON = wc.DownloadString("http://ddragon.leagueoflegends.com/cdn/"+ (version=="current" ? new Version().currentVersion : version) +"/data/" + language + "/item.json");
             }
-            catch (Exception e)
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetItems;
             }

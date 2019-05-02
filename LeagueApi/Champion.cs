@@ -10,12 +10,12 @@ namespace LeagueApi
     {
         private WebClient wc = new WebClient() { Encoding = Encoding.UTF8 };
         public ChampionList champions = new ChampionList();
-        public ChampionData getChampionFromId(int championId)
+        public ChampionData getChampionById(int championId)
         {
             foreach(ChampionData data in champions.data.Values) if (championId == data.key) return data;
             return null;
         }
-        public ChampionData getChampionFromName(string championName)
+        public ChampionData getChampionByName(string championName)
         {
             foreach (ChampionData data in champions.data.Values) if (championName == data.name) return data;
             return null;
@@ -28,8 +28,10 @@ namespace LeagueApi
             {
                 ChampJSON = wc.DownloadString("http://ddragon.leagueoflegends.com/cdn/9.9.1/data/" + language + "/champion.json");
             }
-            catch (Exception e)
+            catch (WebException e)
             {
+                var resp = (HttpWebResponse)e.Response;
+                if (resp.StatusCode == HttpStatusCode.NotFound || resp.StatusCode == HttpStatusCode.Forbidden) throw;
                 System.Threading.Thread.Sleep(1000 / 60);
                 goto GetChamp;
             }
